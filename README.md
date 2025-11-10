@@ -1,6 +1,6 @@
-================================================================================
+--------------------------------------------------------------------------------
 🧠 qPro — Local AI for Tailored Job Applications
-================================================================================
+--------------------------------------------------------------------------------
 
 qPro is a local, privacy-friendly AI tool that helps you generate customized job
 applications using your own past applications, CV, and real job postings.

@@ -25,7 +25,6 @@ your data never leaves your system.
 --------------------------------------------------------------------------------
 🧩 Architecture
 --------------------------------------------------------------------------------
-
     Your .md Data ─┐
                     │   (Job posts + Past applications)
             ┌───────▼────────┐
@@ -104,6 +103,7 @@ http://127.0.0.1:8000/docs
 1️⃣ Ingest past applications or job posts
 ----------------------------------------
 
+```
 curl -X POST http://127.0.0.1:8000/ingest \
 -H "Content-Type: application/json" \
 -d '{
@@ -111,6 +111,7 @@ curl -X POST http://127.0.0.1:8000/ingest \
   "metadata": {"company":"AFRY","title":"AFRY Application","type":"application"}
 }'
 
+```
 You can also ingest .md files that include YAML front-matter:
 
 ---

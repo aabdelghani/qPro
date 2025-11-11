@@ -7,7 +7,12 @@ This guide explains all the different ways you can use it.
 
 ## 🧠 What qPro Does
 
-- Reads and stores your **CVs**, **past applications**, and **job postings** from Markdown files.
+- Reads and stores your **CVs**, **past applications**, and **job postings** from multiple file formats:
+  - ✅ **Markdown** (.md) with YAML front-matter
+  - ✅ **PDF** documents (.pdf)
+  - ✅ **Word documents** (.docx)
+  - ✅ **Excel spreadsheets** (.xlsx, .xls)
+  - ✅ **CSV files** (.csv)
 - Uses **Chroma** to remember your experience and style.
 - When given a **new job post**, it automatically generates:
   - ✅ A professional cover letter (`cover_letter_markdown`)
@@ -46,7 +51,7 @@ You’ll see interactive endpoints:
 | Endpoint | Purpose |
 |-----------|----------|
 | `POST /ingest` | Add a job post or application manually |
-| `POST /ingest_file` | Add a .md file with YAML metadata |
+| `POST /ingest_file` | Add a file (supports .md, .pdf, .docx, .xlsx, .csv) |
 | `POST /apply` | Generate a tailored job application |
 
 **Example:**
@@ -107,6 +112,117 @@ qapply
 ```
 
 ✅ qPro reads your clipboard → generates a cover letter → saves it automatically.
+
+---
+
+## 📁 Multi-Format File Ingestion
+
+qPro now supports ingesting documents in multiple formats beyond Markdown:
+
+### Supported Formats
+
+| Format | Extension | Use Case |
+|--------|-----------|----------|
+| Markdown | `.md` | Structured documents with YAML metadata |
+| PDF | `.pdf` | CVs, cover letters, job descriptions |
+| Word | `.docx` | Resume drafts, application letters |
+| Excel | `.xlsx`, `.xls` | Project lists, skill matrices, achievement tables |
+| CSV | `.csv` | Structured data, lists |
+
+### How to Ingest Different File Types
+
+#### Using Python (Programmatic)
+
+```python
+from app.rag import ingest_file
+
+# Ingest a PDF resume
+result = ingest_file("data/my_applications/my_resume.pdf")
+print(f"Added {result['added']} chunks to database")
+
+# Ingest a Word document
+result = ingest_file("data/job_posts/job_description.docx")
+
+# Ingest an Excel spreadsheet with projects
+result = ingest_file("data/my_applications/projects_list.xlsx")
+
+# Ingest a CSV with skills
+result = ingest_file("data/my_applications/skills.csv")
+```
+
+#### Using the API
+
+```bash
+# Ingest a PDF file
+curl -X POST http://127.0.0.1:8000/ingest_file \
+  -H "Content-Type: application/json" \
+  -d '{"filepath": "data/my_applications/resume.pdf"}'
+
+# Ingest a DOCX file
+curl -X POST http://127.0.0.1:8000/ingest_file \
+  -H "Content-Type: application/json" \
+  -d '{"filepath": "data/job_posts/job_ad.docx"}'
+```
+
+#### Bulk Ingestion
+
+The `bulk_ingest.py` script now automatically handles all supported formats:
+
+```bash
+# Place your files in data directories:
+# - data/my_applications/  (your CVs, past applications)
+# - data/job_posts/        (job descriptions)
+
+# Files can be: .md, .pdf, .docx, .xlsx, .csv
+
+python3 bulk_ingest.py
+```
+
+Output example:
+```
+🔍 Starting bulk ingestion...
+
+📂 Ingesting job posts from: data/job_posts
+ → Adding job_post.md
+   ✅ Added 3 chunks
+ → Adding job_description.pdf
+   ✅ Added 2 chunks
+ → Adding requirements.xlsx
+   ✅ Added 1 chunks
+
+📂 Ingesting applications from: data/my_applications
+ → Adding my_cv.pdf
+   ✅ Added 4 chunks
+ → Adding cover_letter.docx
+   ✅ Added 2 chunks
+
+✅ Bulk ingestion complete!
+```
+
+### How It Works
+
+1. **Text Extraction**: Each file format has a dedicated reader that extracts raw text
+   - PDF: Extracts text from all pages
+   - DOCX: Extracts paragraphs and formatting
+   - XLSX: Converts sheets to CSV-like text (up to 200 rows × 30 columns per sheet)
+   - CSV: Converts to text (up to 10,000 rows × 30 columns)
+
+2. **Metadata Generation**: Files are tagged with:
+   - `filename`: Original file name
+   - `type`: File type (`file` for non-markdown, or from frontmatter for `.md`)
+   - `doc_id`: Document identifier (filename without extension)
+   - `source_ext`: Original file extension (pdf, docx, xlsx, csv)
+
+3. **Chunking**: Text is split into ~900 character chunks with 150 character overlap (same as Markdown)
+
+4. **Storage**: Chunks are embedded and stored in Chroma for semantic search
+
+### Error Handling
+
+- **Missing files**: Raises `FileNotFoundError`
+- **Corrupt files**: Raises `ValueError` with details
+- **Empty files**: Creates a record with empty content
+- **Unsupported formats**: Falls back to plain text reading
 
 ---
 

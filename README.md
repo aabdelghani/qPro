@@ -19,6 +19,7 @@ your data never leaves your system.
 ✅ Automatic Cover Letter + CV Bullets – adapts your tone and skills to each job 
    post  
 ✅ ATS Keyword Coverage – lists covered/missing keywords to boost visibility  
+✅ Multi-Format Ingestion – supports Markdown, PDF, DOCX, XLSX, and CSV files  
 ✅ Metadata Support – Markdown .md files with YAML front-matter for structured 
    ingestion  
 
@@ -179,7 +180,7 @@ qPro/
 - [ ] CV JSON → PDF export with Jinja2  
 - [ ] ATS keyword coverage visualizer  
 - [ ] Docker containerization  
-- [ ] Multi-format ingestion: PDF, DOCX, XLSX/CSV (extract text → metadata → chunks)
+- [x] Multi-format ingestion: PDF, DOCX, XLSX/CSV (extract text → metadata → chunks) ✅
 - [ ] Optional OCR for scanned PDFs (Tesseract)
 
 --------------------------------------------------------------------------------

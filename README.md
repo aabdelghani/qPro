@@ -114,6 +114,7 @@ curl -X POST http://127.0.0.1:8000/ingest \
 ```
 You can also ingest .md files that include YAML front-matter:
 
+```
 ---
 type: job_post
 company: Scania
@@ -124,7 +125,11 @@ date: 2025-11-10
 We seek an Embedded Software Engineer for powertrain testing (HIL/SIL),
 MATLAB/Simulink, C, Python, Vector CANoe/CANalyzer, Zephyr RTOS, and ISO 26262 basics.
 
+```
+
 2️⃣ Generate a tailored application
+
+```
 -----------------------------------
 
 curl -X POST http://127.0.0.1:8000/apply \
@@ -133,7 +138,10 @@ curl -X POST http://127.0.0.1:8000/apply \
   "job_post": "We are looking for an Embedded Software Engineer with C/C++, Zephyr, CAN/LIN, and automotive testing experience."
 }'
 
+```
 You’ll get a structured JSON output:
+
+```
 {
   "draft": {
     "cover_letter": "...",
@@ -142,10 +150,12 @@ You’ll get a structured JSON output:
   }
 }
 
+```
 --------------------------------------------------------------------------------
 🗂 Folder Structure
 --------------------------------------------------------------------------------
 
+```
 qPro/
 ├── app/
 │   ├── main.py          # FastAPI entry point
@@ -157,6 +167,8 @@ qPro/
 ├── .gitignore
 ├── README.md
 └── requirements.txt
+
+```
 
 --------------------------------------------------------------------------------
 🧠 Future Enhancements

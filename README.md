@@ -174,7 +174,7 @@ qPro/
 🧠 Future Enhancements
 --------------------------------------------------------------------------------
 
-- [ ] Streamlit web dashboard for one-click generation  
+- [ ] [Streamlit web dashboard for one-click generation](https://github.com/aabdelghani/qPro/issues/1)  
 - [ ] Automatic .md ingestion watcher  
 - [ ] CV JSON → PDF export with Jinja2  
 - [ ] ATS keyword coverage visualizer  

@@ -81,6 +81,24 @@ def embed_texts(texts: List[str]) -> List[List[float]]:
 # -----------------------
 # Helpers
 # -----------------------
+def _validate_file_path(filepath: str) -> Path:
+    """Validate and resolve file path to prevent directory traversal attacks.
+    Returns a resolved Path object if valid, raises FileNotFoundError/ValueError."""
+    try:
+        path = Path(filepath).resolve()
+        # Check that the file exists and is actually a file
+        if not path.exists():
+            raise FileNotFoundError(f"File not found: {filepath}")
+        if not path.is_file():
+            raise ValueError(f"Path is not a file: {filepath}")
+        return path
+    except FileNotFoundError:
+        # Re-raise FileNotFoundError as-is
+        raise
+    except (OSError, RuntimeError) as e:
+        raise ValueError(f"Invalid file path: {filepath} - {e}")
+
+
 def _chunk(text: str, chunk: int = 900, overlap: int = 150) -> List[str]:
     out, i = [], 0
     step = max(1, chunk - overlap)
@@ -227,9 +245,8 @@ def ingest_file(filepath: str) -> Dict[str, Any]:
     """Ingest a file (Markdown, PDF, DOCX, XLSX, CSV) with metadata.
     For Markdown: YAML front-matter becomes metadata, body is embedded.
     For other formats: text extracted and embedded with basic metadata."""
-    p = Path(filepath)
-    if not p.exists():
-        raise FileNotFoundError(f"File not found: {filepath}")
+    # Validate and resolve path
+    p = _validate_file_path(filepath)
     
     # Handle Markdown files with YAML frontmatter
     if p.suffix.lower() == ".md":

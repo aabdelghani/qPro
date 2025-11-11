@@ -25,7 +25,7 @@ your data never leaves your system.
 --------------------------------------------------------------------------------
 🧩 Architecture
 --------------------------------------------------------------------------------
-    Your .md Data ─┐
+     Your .md Data ─┐
                     │   (Job posts + Past applications)
             ┌───────▼────────┐
             │  FastAPI (qPro)│  ←  app/main.py
@@ -179,6 +179,8 @@ qPro/
 [ ] CV JSON → PDF export with Jinja2  
 [ ] ATS keyword coverage visualizer  
 [ ] Docker containerization  
+[ ] Multi-format ingestion: PDF, DOCX, XLSX/CSV (extract text → metadata → chunks)
+[ ] Optional OCR for scanned PDFs (Tesseract)
 
 --------------------------------------------------------------------------------
 🧑‍💻 Author

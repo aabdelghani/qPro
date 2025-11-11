@@ -7,12 +7,16 @@ import json
 import re
 import shutil
 import datetime
+import mimetypes
 from pathlib import Path
 
 import chromadb
 from chromadb.config import Settings
 import ollama
 import frontmatter  # Markdown + YAML front-matter
+from pypdf import PdfReader
+import docx2txt
+import pandas as pd
 
 
 # -----------------------
@@ -131,6 +135,80 @@ def _extract_json(text: str) -> Any:
 
 
 # -----------------------
+# File Format Readers
+# -----------------------
+def _read_pdf(path: Path) -> str:
+    """Extract text from PDF file."""
+    text_parts = []
+    try:
+        with open(path, "rb") as f:
+            reader = PdfReader(f)
+            for page in reader.pages:
+                text = page.extract_text()
+                if text:
+                    text_parts.append(text)
+    except Exception as e:
+        raise ValueError(f"Failed to read PDF {path.name}: {e}")
+    return "\n".join(text_parts).strip()
+
+
+def _read_docx(path: Path) -> str:
+    """Extract text from DOCX file."""
+    try:
+        text = docx2txt.process(str(path))
+        return (text or "").strip()
+    except Exception as e:
+        raise ValueError(f"Failed to read DOCX {path.name}: {e}")
+
+
+def _read_excel(path: Path) -> str:
+    """Extract text from Excel file (XLSX/XLS). Flattens all sheets to CSV-like text."""
+    try:
+        dfs = pd.read_excel(path, sheet_name=None)
+        parts = []
+        for sheet_name, df in dfs.items():
+            # Limit to first 200 rows and 30 columns to avoid huge text
+            limited_df = df.iloc[:200, :30]
+            parts.append(f"# Sheet: {sheet_name}\n{limited_df.to_csv(index=False)}")
+        return "\n\n".join(parts).strip()
+    except Exception as e:
+        raise ValueError(f"Failed to read Excel {path.name}: {e}")
+
+
+def _read_csv(path: Path) -> str:
+    """Extract text from CSV file."""
+    try:
+        df = pd.read_csv(path)
+        # Limit to first 10000 rows and 30 columns
+        limited_df = df.iloc[:10000, :30]
+        return limited_df.to_csv(index=False).strip()
+    except Exception as e:
+        raise ValueError(f"Failed to read CSV {path.name}: {e}")
+
+
+def _detect_and_read_file(path: Path) -> str:
+    """Auto-detect file type and extract text content."""
+    ext = path.suffix.lower()
+    
+    if ext == ".pdf":
+        return _read_pdf(path)
+    elif ext == ".docx":
+        return _read_docx(path)
+    elif ext in (".xlsx", ".xlsm", ".xls"):
+        return _read_excel(path)
+    elif ext == ".csv":
+        return _read_csv(path)
+    
+    # Fallback: try mime type detection
+    mime, _ = mimetypes.guess_type(str(path))
+    if mime == "application/pdf":
+        return _read_pdf(path)
+    
+    # Last resort: read as text
+    return path.read_text(encoding="utf-8", errors="ignore")
+
+
+# -----------------------
 # Ingestion
 # -----------------------
 def ingest_text(text: str, metadata: Dict[str, Any]) -> Dict[str, Any]:
@@ -146,16 +224,36 @@ def ingest_text(text: str, metadata: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def ingest_file(filepath: str) -> Dict[str, Any]:
-    """Ingest a Markdown file with optional YAML front-matter.
-    Only the Markdown body is embedded; front-matter goes into metadata."""
+    """Ingest a file (Markdown, PDF, DOCX, XLSX, CSV) with metadata.
+    For Markdown: YAML front-matter becomes metadata, body is embedded.
+    For other formats: text extracted and embedded with basic metadata."""
     p = Path(filepath)
-    post = frontmatter.loads(p.read_text(encoding="utf-8"))
-    meta = _coerce_meta(dict(post.metadata or {}))
-    # defaults
-    meta.setdefault("filename", p.name)
-    meta.setdefault("type", "unknown")
-    meta.setdefault("doc_id", p.stem)
-    return ingest_text(post.content, meta)
+    if not p.exists():
+        raise FileNotFoundError(f"File not found: {filepath}")
+    
+    # Handle Markdown files with YAML frontmatter
+    if p.suffix.lower() == ".md":
+        post = frontmatter.loads(p.read_text(encoding="utf-8"))
+        meta = _coerce_meta(dict(post.metadata or {}))
+        # defaults
+        meta.setdefault("filename", p.name)
+        meta.setdefault("type", "markdown")
+        meta.setdefault("doc_id", p.stem)
+        return ingest_text(post.content, meta)
+    
+    # Handle other file formats
+    try:
+        body = _detect_and_read_file(p)
+    except Exception as e:
+        raise ValueError(f"Failed to read {p.name}: {e}")
+    
+    meta = _coerce_meta({
+        "filename": p.name,
+        "type": "file",
+        "doc_id": p.stem,
+        "source_ext": p.suffix.lower().lstrip("."),
+    })
+    return ingest_text(body or "", meta)
 
 
 # -----------------------

@@ -174,13 +174,13 @@ qPro/
 🧠 Future Enhancements
 --------------------------------------------------------------------------------
 
-[ ] Streamlit web dashboard for one-click generation  
-[ ] Automatic .md ingestion watcher  
-[ ] CV JSON → PDF export with Jinja2  
-[ ] ATS keyword coverage visualizer  
-[ ] Docker containerization  
-[ ] Multi-format ingestion: PDF, DOCX, XLSX/CSV (extract text → metadata → chunks)
-[ ] Optional OCR for scanned PDFs (Tesseract)
+- [ ] Streamlit web dashboard for one-click generation  
+- [ ] Automatic .md ingestion watcher  
+- [ ] CV JSON → PDF export with Jinja2  
+- [ ] ATS keyword coverage visualizer  
+- [ ] Docker containerization  
+- [ ] Multi-format ingestion: PDF, DOCX, XLSX/CSV (extract text → metadata → chunks)
+- [ ] Optional OCR for scanned PDFs (Tesseract)
 
 --------------------------------------------------------------------------------
 🧑‍💻 Author

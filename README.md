@@ -185,7 +185,6 @@ qPro/
 --------------------------------------------------------------------------------
 
 qPro created by Ahmed Abdelghany  
-Embedded & Software Systems Engineer — AFRY, Södertälje, Sweden  
 Email: ahmedabdelghany15@gmail.com  
 LinkedIn: https://linkedin.com/in/ahmedabdelghany/
 

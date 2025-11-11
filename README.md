@@ -147,14 +147,14 @@ You’ll get a structured JSON output:
 
 qPro/
 ├── app/
-│   ├── main.py           # FastAPI entry point
-│   ├── rag.py            # RAG logic (embeddings, retrieval, generation)
+│   ├── main.py          # FastAPI entry point
+│   └── rag.py           # RAG logic (embeddings, retrieval, generation)
 ├── data/
-│   ├── job_posts/        # Markdown job descriptions
-│   ├── my_applications/  # Your past applications
-├── chroma/               # Local Chroma DB storage
+│   ├── job_posts/       # Markdown job descriptions
+│   └── my_applications/ # Your past applications
+├── chroma/              # Local Chroma DB storage
 ├── .gitignore
-├── README.txt
+├── README.md
 └── requirements.txt
 
 --------------------------------------------------------------------------------
